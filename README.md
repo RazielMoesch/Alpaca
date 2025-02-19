@@ -40,10 +40,10 @@ I personally used Python=3.12.7 and PyTorch=2.6.0-Cuda18 so if you're having iss
    ```bash
    git clone https://github.com/RazielMoesch/alpaca.git
    cd alpaca
+   
 
 or
 
-  ```bash
    pip install alpaca-transformer
 
 
