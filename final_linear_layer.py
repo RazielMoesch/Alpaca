@@ -11,4 +11,4 @@ class FinalLinear(nn.Module):
     def forward(self, x):
         x = self.linear(x)
         #x = self.softmax(x)
-        return x
+        return x 

@@ -3,7 +3,7 @@ import torch.nn as nn
 from .multi_head_self_attention import MultiSelfAttension
 from .multi_head_cross_attention import MultiCrossAttention  
 from .ffn import FFN
-
+ 
 
 class DecoderBlock(nn.Module):
     def __init__(self, d_model, num_heads, ff_dim):

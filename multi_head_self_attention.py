@@ -16,7 +16,7 @@ class MultiSelfAttension(nn.Module):
         self.num_heads = num_heads
         self.d_k = d_model // num_heads  
 
-        self.W_q = nn.Linear(d_model, d_model, bias=False)
+        self.W_q = nn.Linear(d_model, d_model, bias=False) 
         self.W_k = nn.Linear(d_model, d_model, bias=False)
         self.W_v = nn.Linear(d_model, d_model, bias=False)
         self.W_o = nn.Linear(d_model, d_model, bias=False)

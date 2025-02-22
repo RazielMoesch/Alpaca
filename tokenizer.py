@@ -10,7 +10,7 @@ class Tokenizer():
         self.text = ''
         self.tokens = []
     
-    
+     
 
     def save_as_file(self, vocab_save_path='vocab.json', token_save_path='tokens.json'):
         tokenizer_data = {
@@ -88,31 +88,44 @@ class Tokenizer():
             byte_frequency = self.byte_pair_frequency(byte_pairs)
 
         return self.vocab
+    
+    
 
+    def load_vocab(self, vocab_path):
+        with open(vocab_path, "r") as f:
+            data = json.load(f)
+
+        vocab = {eval(k): v for k, v in data["vocab"].items()}  # Convert string keys to tuples safely
+
+        self.vocab = vocab
+        self.merges = data.get("merges", [])
+        self.special_tokens = data.get("special_tokens", {})
+
+        return vocab
 
 
     def tokenize(self, text, vocab=None, save_as_file=False, save_file_path='tokens.txt'):
-        if self.vocab.items == None:
+        if vocab is None and self.vocab is None:
             self.vocab = self.create_vocab(text)
-            
+        elif isinstance(vocab, str):
+            self.load_vocab(vocab)
+
+        if not isinstance(self.vocab, dict):
+            raise ValueError(f"Vocabulary must be a dictionary, got {type(self.vocab)}")
+
         byte_text = self.text_to_byte(text)
         byte_pairs = self.byte_to_pairs(byte_text)
 
-        tokens = []
-        for pair in byte_pairs:
-            if pair in self.vocab:
-                tokens.append(self.vocab[pair])
-            else:
-                tokens.append(-1)  
-        
+        tokens = [self.vocab.get(pair, 0) for pair in byte_pairs]
+
         self.tokens = tokens
 
         if save_as_file:
             with open(save_file_path, 'w') as f:
-                for token in tokens:
-                    f.write(token)
+                f.writelines(f"{token}\n" for token in tokens)
 
         return tokens
+
     
     def detokenize(self, tokenized, vocab=None, include_unknown=False):
         if not vocab:

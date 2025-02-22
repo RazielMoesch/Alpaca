@@ -5,7 +5,7 @@ from .positional_encoding import PEncoding
 from .encoder_block import EncoderBlock
 
 
-class Encoder(nn.Module):
+class Encoder(nn.Module): 
     def __init__(self, vocab_size, d_model, num_heads, ff_dim, num_layers, max_seq_len, device=None):
         super().__init__()
 

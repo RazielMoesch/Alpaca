@@ -11,7 +11,7 @@ class Transformer(nn.Module):
         self.decoder = Decoder(vocab_size, d_model, num_heads, ff_dim, num_layers, max_seq_len)
         self.final_linear = FinalLinear(d_model, vocab_size)
     
-
+ 
     def forward(self, src, tgt):
 
         encoder_out = self.encoder(src)

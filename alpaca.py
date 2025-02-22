@@ -19,6 +19,7 @@ from .validate import validate
 class Alpaca:
     def __init__(self):
         self.tokenizer = Tokenizer()
+        self.state_dict=None
 
     def token_embedding(self, vocab_size, embedding_dim):
         Embedding_layer = Embedding(vocab_size, embedding_dim)
@@ -60,10 +61,10 @@ class Alpaca:
         self.transformer = Transformer(vocab_size, d_model, num_heads, ff_dim, num_layers, max_seq_len)
         return self.transformer
     
-    def dataset(self, txt_file, tokenizer=None, max_seq_len=512, merges=5000):
+    def dataset(self, txt_file, tokenizer=None, vocab=None, max_seq_len=512, merges=5000):
         if not tokenizer:
             tokenizer = self.tokenizer
-        return AlpacaDataset(txt_file, tokenizer, max_seq_len, num_merges=merges)
+        return AlpacaDataset(txt_file=txt_file, tokenizer=tokenizer,vocab=vocab, max_seq_len=max_seq_len, num_merges=merges)
     
     def train_model(self, epochs, train_dl, optimizer=torch.optim.Adam, transformer=None, loss_fn=nn.CrossEntropyLoss, lr=1e-4, validate_data=False, validation_data=None, wandb_tracking=False, lr_scheduler=False):
         if not transformer:
@@ -74,28 +75,43 @@ class Alpaca:
         if not model:
             model = self.transformer
         validate(model, val_dl, device)
-
     
-    def inference(self, tokens, detokenize=False):
+    def set_vocab(self, vocab_txt):
+        with open(vocab_txt, 'r') as f:
+            vocab = f.read()
+
+        
+    def inference(self, tokens, state_dict=None, detokenize=False, vocab=None):
+
+        if not state_dict:
+            state_dict = self.state_dict
+
         transformer = self.transformer
+
+        if state_dict:
+            transformer.load_state_dict(state_dict)
 
         tokens = tokens.unsqueeze(0)  
 
         transformer.eval()  
         with torch.inference_mode(): 
-            output = transformer(tokens, tokens)  
+            output = transformer.forward(tokens, tokens)  
         
+        #print(output)
+        #out = torch.softmax(output, -1)
+        out = output.argmax(dim=-1) 
+        predicted_tokens = output.argmax(dim=-1).squeeze(0)
         
-        output = output.argmax(dim=-1) 
 
         if detokenize:
-            result = [token.item() for token in output.squeeze(0)]
-            
-            detokenized_result = alpaca.tokenizer.detokenize(result)
+            result = [token.item() for token in predicted_tokens]
+            if vocab:
+                self.tokenizer.load_vocab(vocab)
+            detokenized_result = self.tokenizer.detokenize(result)
 
             return detokenized_result
         
-        return output
+        return predicted_tokens
 
 
 

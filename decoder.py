@@ -3,7 +3,7 @@ import torch.nn as nn
 from .embedding import Embedding
 from .positional_encoding import PEncoding
 from .decoder_block import DecoderBlock  
-
+ 
 class Decoder(nn.Module):
     def __init__(self, vocab_size, d_model, num_heads, ff_dim, num_layers, max_seq_len, device=None):
         super().__init__()

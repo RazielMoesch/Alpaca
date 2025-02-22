@@ -5,7 +5,7 @@ from .ffn import FFN
 
 
 class EncoderBlock(nn.Module):
-    def __init__(self, d_model, num_heads, ff_dim):
+    def __init__(self, d_model, num_heads, ff_dim): 
         super().__init__()
 
         self.attention = MultiSelfAttension(d_model, num_heads)

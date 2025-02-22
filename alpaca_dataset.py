@@ -2,9 +2,9 @@ import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset
 from .tokenizer import Tokenizer
-
+ 
 class AlpacaDataset(Dataset):
-    def __init__(self, txt_file, tokenizer:Tokenizer, max_seq_len=512, num_merges=1000):
+    def __init__(self, txt_file, tokenizer:Tokenizer, vocab=None, max_seq_len=512, num_merges=1000):
         self.tokenizer = tokenizer
         self.max_seq_len = max_seq_len
         
@@ -13,8 +13,10 @@ class AlpacaDataset(Dataset):
             whole_text = f.read()  
         num_words = len(whole_text.split(' '))
         
-        
-        self.tokenizer.create_vocab(whole_text, num_merges=num_merges)
+        if not vocab:
+            self.tokenizer.create_vocab(whole_text, num_merges=num_merges)
+        else:
+            self.tokenizer.vocab = vocab
         print(f"Created Vocab.")
         print(f"Number of words in datset: {num_words}")
         
@@ -25,7 +27,8 @@ class AlpacaDataset(Dataset):
     def __getitem__(self, index):
         sentence = self.sentences[index]
         
-        tokens = self.tokenizer.tokenize(sentence)
+        
+        tokens = self.tokenizer.tokenize(sentence, vocab=self.tokenizer.vocab)
         
         
         tokens = [t if t >= 0 else 0 for t in tokens]

@@ -4,7 +4,7 @@ import torch
 Explanation to understand:
     Create a matrix of vocab_size by embedding_dim .shape filled with random values. 
     return the value at the index of an input id
-'''
+''' 
 
 class Embedding():
     def __init__(self, vocab_size, embedding_dim, device=None):

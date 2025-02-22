@@ -2,10 +2,9 @@ from .alpaca import Alpaca
 
 alpaca = Alpaca()
 
-txt_file = 'example.txt'
+text = 'Hello'
 
 tokenizer = alpaca.tokenizer
+tokenizer.create_vocab(text)
 
-test_dataset = alpaca.dataset(txt_file, tokenizer=tokenizer)
-
-print(test_dataset)
+alpaca.tokenizer.save_as_file()

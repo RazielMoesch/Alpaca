@@ -12,7 +12,7 @@ class FFN(nn.Module):
         self.linear2 = nn.Linear(ff_dim, d_model)
 
     
-    def forward(self, x):
+    def forward(self, x): 
         x = self.linear1(x)
         x = self.relu(x)
         x = self.linear2(x)

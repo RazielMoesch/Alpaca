@@ -17,7 +17,7 @@ def train(epochs, transformer, loss_fn, train_dl, optimizer=torch.optim.Adam, lr
         wandb.init(project=wandb_tracking, config={"Learning_Rate": lr, "Epochs": epochs})
     
     if lr_scheduler:
-            scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=3, verbose=True)
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=3, verbose=True)
 
     for epoch in range(epochs):
         transformer.train()
@@ -26,17 +26,17 @@ def train(epochs, transformer, loss_fn, train_dl, optimizer=torch.optim.Adam, lr
         batch_iterator = tqdm(train_dl, desc=f'Epoch {epoch+1}/{epochs}', leave=True)
         for tensor_tokens in batch_iterator:
             tensor_tokens = tensor_tokens.to(device)
-            out = transformer(tensor_tokens, tensor_tokens)
-            target = tensor_tokens.to(device)
-            #print(out)
-            loss = loss_fn(out.view(-1, out.size(-1)), target.view(-1))
-            
+
+            out = transformer(tensor_tokens[:, :-1], tensor_tokens[:, :-1])
+
+            target = tensor_tokens[:, 1:].to(device)
+
+            loss = loss_fn(out.view(-1, out.size(-1)), target.reshape(-1))
+
             optimizer.zero_grad()
             loss.backward()
-            
-
             optimizer.step()
-            
+
             total_loss += loss.item()
             count+=1
             
@@ -59,8 +59,3 @@ def train(epochs, transformer, loss_fn, train_dl, optimizer=torch.optim.Adam, lr
             val_loss = validate(transformer, validation_dl, loss_fn, device)
             if wandb_tracking:
                 wandb.log({"epoch_validation_loss": val_loss}, commit=True)
-    
-    if wandb_tracking:
-        wandb.finish()
-
-

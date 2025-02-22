@@ -16,7 +16,7 @@ class PEncoding():
             for i in range(0, embedding_dim, 2):
                 position_encodings[pos, i] = math.sin(pos/ (10000 **(i/embedding_dim)))
 
-                if i + 1 < embedding_dim:
+                if i + 1 < embedding_dim: 
                     position_encodings[pos, i+1] = math.cos(pos/(10000**(i/embedding_dim)))
         
         return position_encodings

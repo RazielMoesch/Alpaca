@@ -11,7 +11,7 @@ class SingleSelfAttention(nn.Module):
         self.value = nn.Linear(embedding_dim, embedding_dim)
 
         self.scale = embedding_dim ** .5
-    
+     
     def forward(self, x):
         Q = self.query(x)
         K = self.key(x)
