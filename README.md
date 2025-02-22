@@ -33,6 +33,7 @@ Before you begin, ensure that you have the following installed on your system:
 - **CUDA** (for GPU acceleration, optional but recommended)
 
 I personally used Python=3.12.7 and PyTorch=2.6.0-Cuda18 so if you're having issues try it.
+**Note** PyPI would not work without relative imports so if you want to use the cloned repository you may recieve an error. To fix this simply remove the '.' in from of imports that are found in the repo.
 
 ### Installation
 
