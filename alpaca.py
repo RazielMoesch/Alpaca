@@ -14,6 +14,7 @@ from .transformer import Transformer
 from .train import train
 from .alpaca_dataset import AlpacaDataset
 from .validate import validate
+import os
 
 
 class Alpaca:
@@ -66,10 +67,14 @@ class Alpaca:
             tokenizer = self.tokenizer
         return AlpacaDataset(txt_file=txt_file, tokenizer=tokenizer,vocab=vocab, max_seq_len=max_seq_len, num_merges=merges)
     
-    def train_model(self, epochs, train_dl, optimizer=torch.optim.Adam, transformer=None, loss_fn=nn.CrossEntropyLoss, lr=1e-4, validate_data=False, validation_data=None, wandb_tracking=False, lr_scheduler=False):
+    def train_model(self, epochs, train_dl, optimizer=torch.optim.Adam, transformer=None, loss_fn=nn.CrossEntropyLoss, lr=1e-4, validate_data=False, validation_data=None, wandb_tracking=False, lr_scheduler=False, device=None):
         if not transformer:
             transformer = self.transformer
-        train(epochs, transformer, loss_fn, train_dl, optimizer, lr=lr, validate_data=validate_data, validation_dl=validation_data, wandb_tracking=wandb_tracking, lr_scheduler=lr_scheduler)
+        try:
+            train(epochs, transformer, loss_fn, train_dl, optimizer, lr=lr, validate_data=validate_data, validation_dl=validation_data, wandb_tracking=wandb_tracking, lr_scheduler=lr_scheduler, device=device)
+        except:
+            print("Here are some of the most common issues:")
+            print("\'max_seq_len\' hyperparameter must be greater than or equal to the largest sequence length in you dataset this causes size mismatch issues.")
     
     def validate_model(self, model, val_dl, device):
         if not model:
@@ -112,6 +117,55 @@ class Alpaca:
             return detokenized_result
          
         return predicted_tokens
+
+    def save_alpaca(self, transformer, vocab=None, save_folder='Alpaca_Model', vocab_save_path='model_vocab.json'
+                    , state_dict_save_path='state_dict.pth', token_save_path='tokens.json'):
+        state_dict = transformer.state_dict()
+        if not vocab:
+            if self.tokenizer.vocab:
+                vocab = self.tokenizer.vocab
+            else:
+                raise LookupError("Vocab Not Found. Please create a vocabulary using Alpaca.tokenizer.create_vocab().")
+        
+        folder_path = save_folder
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+            print(f"Created folder: {folder_path}")
+        else:
+            print(f"Folder {folder_path} exists.")
+        
+
+        vocab_save_path = os.path.join(folder_path, vocab_save_path)
+        token_save_path = os.path.join(folder_path, token_save_path)
+        self.tokenizer.save_as_file(vocab_save_path=vocab_save_path, token_save_path=token_save_path)
+
+        state_dict_save_path = os.path.join(folder_path, state_dict_save_path)
+
+        torch.save(transformer.state_dict(), state_dict_save_path)
+
+        print(f"Saved files to folder.")
+
+        
+    
+    def load_alpaca(self, transformer, folder_path, vocab_save_path='model_vocab.json',state_dict_save_path='state_dict.pth'
+                    , token_save_path='tokens.json', join_individual_paths_with_folder_path=True):
+        
+        if join_individual_paths_with_folder_path:
+            vocab_path = os.path.join(folder_path, vocab_save_path)
+            token_path = os.path.join(folder_path, token_save_path)
+            state_dict_path = os.path.join(folder_path, state_dict_path)
+
+        self.tokenizer.load_vocab(vocab_path=vocab_path)
+        
+        transformer.load_state_dict(torch.load(state_dict_path, map_location='cpu'))
+
+
+
+
+        
+
+
+            
 
 
 
