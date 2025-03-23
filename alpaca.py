@@ -14,6 +14,7 @@ from .transformer import Transformer
 from .train import train
 from .alpaca_dataset import AlpacaDataset
 from .validate import validate
+from .preprocessing import Preprocess
 import os
 
 
@@ -21,6 +22,7 @@ class Alpaca:
     def __init__(self):
         self.tokenizer = Tokenizer()
         self.state_dict=None
+        self.preprocessor = Preprocess()
 
     def token_embedding(self, vocab_size, embedding_dim):
         Embedding_layer = Embedding(vocab_size, embedding_dim)
@@ -145,7 +147,7 @@ class Alpaca:
 
         print(f"Saved files to folder.")
 
-        
+
     
     def load_alpaca(self, transformer, folder_path, vocab_save_path='model_vocab.json',state_dict_save_path='state_dict.pth'
                     , token_save_path='tokens.json', join_individual_paths_with_folder_path=True):
@@ -158,64 +160,78 @@ class Alpaca:
         self.tokenizer.load_vocab(vocab_path=vocab_path)
         
         transformer.load_state_dict(torch.load(state_dict_path, map_location='cpu'))
+    
+
+    def auto_model(self, train_txt, validation_txt=None, epochs=1, lr=1e-4, batch_size=4, device=None):
+        if not device:
+            device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+        vocab = self.tokenizer.create_vocab(train_txt)
+        vocab_length = len(vocab)
+
+        max_seq_len = 0
+        for file in [train_txt, validation_txt] if validation_txt else [train_txt]:
+            if file:
+                with open(file, 'r') as f:
+                    for line in f:
+                        max_seq_len = max(max_seq_len, len(line.strip()))
+
+        train_dataset = self.dataset(train_txt, tokenizer=self.tokenizer, vocab=vocab, max_seq_len=max_seq_len, merges=round(vocab_length/500)+1)
+        train_dl = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+
+        val_dl = None
+        if validation_txt:
+            val_dataset = self.dataset(validation_txt, tokenizer=self.tokenizer, vocab=vocab, max_seq_len=max_seq_len, merges=round(vocab_length/500)+1)
+            val_dl = DataLoader(val_dataset, batch_size=batch_size)
+
+        model = self.new_transformer(
+            vocab_size=vocab_length,
+            d_model=max(64, round(vocab_length/650)+1),
+            num_heads=max(2, round(vocab_length/21250)+1),
+            num_layers=max(1, round(vocab_length/42500)+1),
+            max_seq_len=max_seq_len
+        )
+        model.to(device)
+
+        optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=0.0001)
+
+        self.train_model(
+            epochs=epochs,
+            train_dl=train_dl,
+            transformer=model,
+            lr=lr,
+            optimizer=optimizer,
+            validate_data=bool(validation_txt),
+            validation_dl=val_dl,
+            lr_scheduler=True,
+            device=device
+        )
+
+        return model.state_dict()
 
 
 
-
-        
 
 
             
 
 
-
-
-    
+                
 
 
 
-    
-        
-    
-
-    
 
         
-       
-
-if __name__ == "__main__":
-    
-    alpaca = Alpaca()
-    transformer = alpaca.transformer(vocab_size=100,
-                                    d_model=8,
-                                    num_heads=8,
-                                    num_layers=2,
-                                    max_seq_len=64)
-    tokenizer = alpaca.tokenizer
-    train_dataset = alpaca.dataset('example.txt', tokenizer, max_seq_len=64)
-    print(f"Train dataset len: {len(train_dataset)}")
-    print(f"Label min: {train_dataset[0].min()}, Label max: {train_dataset[0].max()}")
-
-    print(f"train_dataset[1]: {train_dataset[1]}")
-    
-    train_dl = DataLoader(train_dataset, batch_size=2, shuffle=True)
 
 
-    EPOCHS = 10000
-    optimizer = torch.optim.Adam
-    loss_fn = nn.CrossEntropyLoss
-    LR = 1e-4
 
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    transformer.to(device)
+        
+            
+        
 
-    alpaca.train_model(EPOCHS, train_dl, optimizer, transformer=transformer, loss_fn=loss_fn, lr=LR)
+        
 
-    result = alpaca.inference(train_dataset[0], detokenize=True)
-    print(result)
-    
+            
+        
 
-   
-    
-    
     
