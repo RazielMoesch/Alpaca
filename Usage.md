@@ -1,4 +1,4 @@
-```markdown
+
 # This File will go through most of the methods directly accessible through the Alpaca class.
 # Note: This md file was made with help from deepseekAI's chatbot to help with grammar, wording, and formatting since its better than me at it.
 
