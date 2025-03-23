@@ -69,7 +69,7 @@ class Alpaca:
     def train_model(self, epochs, train_dl, optimizer=torch.optim.Adam, transformer=None, loss_fn=nn.CrossEntropyLoss, lr=1e-4, validate_data=False, validation_data=None, wandb_tracking=False, lr_scheduler=False):
         if not transformer:
             transformer = self.transformer
-        train(epochs, transformer, loss_fn, train_dl, optimizer, validate_data=validate_data, validation_dl=validation_data, wandb_tracking=wandb_tracking, lr_scheduler=lr_scheduler)
+        train(epochs, transformer, loss_fn, train_dl, optimizer, lr=lr, validate_data=validate_data, validation_dl=validation_data, wandb_tracking=wandb_tracking, lr_scheduler=lr_scheduler)
     
     def validate_model(self, model, val_dl, device):
         if not model:
