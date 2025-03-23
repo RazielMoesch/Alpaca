@@ -52,7 +52,7 @@ class Alpaca:
     def final_linear_layer(self, d_model, vocab_size):
         lin = FinalLinear(d_model, vocab_size)
         return lin
-    
+     
     def transformer(self, vocab_size=5000, d_model=512, num_heads=8, ff_dim=2048, num_layers=6, max_seq_len=512):
         self.transformer = Transformer(vocab_size, d_model, num_heads, ff_dim, num_layers, max_seq_len)
         return self.transformer
@@ -110,7 +110,7 @@ class Alpaca:
             detokenized_result = self.tokenizer.detokenize(result)
 
             return detokenized_result
-        
+         
         return predicted_tokens
 
 

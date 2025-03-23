@@ -23,7 +23,10 @@ def train(epochs, transformer, loss_fn, train_dl, optimizer=torch.optim.Adam, lr
         transformer.train()
         total_loss = 0
         count = 0
-        batch_iterator = tqdm(train_dl, desc=f'Epoch {epoch+1}/{epochs}', leave=True)
+        batch_iterator = tqdm(train_dl, desc=f'Epoch {epoch+1}/{epochs}', leave=True, 
+                             bar_format='{l_bar}{bar:20}{r_bar}', 
+                             postfix={"Batch Loss": "N/A", "Avg Loss": "N/A", "LR": f"{lr:.2e}"})
+        
         for tensor_tokens in batch_iterator:
             tensor_tokens = tensor_tokens.to(device)
 
@@ -38,12 +41,18 @@ def train(epochs, transformer, loss_fn, train_dl, optimizer=torch.optim.Adam, lr
             optimizer.step()
 
             total_loss += loss.item()
-            count+=1
+            count += 1
+            
+            # Update progress bar with detailed information
+            avg_loss = total_loss / count
+            batch_iterator.set_postfix({
+                "Batch Loss": f"{loss.item():.4f}", 
+                "Avg Loss": f"{avg_loss:.4f}", 
+                "LR": f"{optimizer.param_groups[0]['lr']:.2e}"
+            })
             
             if wandb_tracking:
                 wandb.log({"batch_train_loss": loss.item(), "epoch": epoch}, commit=True)
-            
-            batch_iterator.set_postfix(loss=loss.item())
         
         epoch_loss = total_loss / len(train_dl)
 

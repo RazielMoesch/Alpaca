@@ -1,14 +1,16 @@
 import torch
 import torch.nn as nn
 
+
 class FinalLinear(nn.Module):
-    
-    def __init__(self, d_model, vocab_size):
+    def __init__(self, d_model, vocab_size, device=None):
         super().__init__()
-        self.linear = nn.Linear(d_model, vocab_size)
-        self.softmax = nn.Softmax(-1)
+        self.device = device if device else ('cuda' if torch.cuda.is_available() else 'cpu')
+        self.linear = nn.Linear(d_model, vocab_size).to(self.device)
+        self.softmax = nn.Softmax(-1).to(self.device)
 
     def forward(self, x):
+        x = x.to(self.device)
         x = self.linear(x)
         #x = self.softmax(x)
-        return x 
+        return x
