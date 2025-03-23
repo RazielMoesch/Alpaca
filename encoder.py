@@ -21,7 +21,6 @@ class Encoder(nn.Module):
             device = 'cuda' if torch.cuda.is_available() else 'cpu'
         x = self.embedding.forward(x) 
         x = x.unsqueeze(0) if x.dim() == 1 else x  
-        x = x.cpu()
         x += self.pos_encoding.forward(x)
         x = x.to(device)
         for layer in self.layers:

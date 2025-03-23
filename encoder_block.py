@@ -4,7 +4,7 @@ from .multi_head_self_attention import MultiSelfAttension
 from .ffn import FFN
 
 
-class EncoderBlock(nn.Module):
+class EncoderBlock(nn.Module): 
     def __init__(self, d_model, num_heads, ff_dim): 
         super().__init__()
 
