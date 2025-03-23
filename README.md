@@ -2,6 +2,8 @@
 
 This project demonstrates the process of building a transformer model from scratch, utilizing PyTorch for deep learning. It covers the essential components of transformer architectures, such as tokenization, embedding layers, multi-head self-attention, and the training pipeline. This model is designed for educational purposes to help users understand and implement transformers without relying on pre-built models.
 
+## For Information About Specific Syntax, Usage, and how the library works please refer to the *Usage.md* file in this repo.
+
 ## Table of Contents
 1. [Project Overview](#project-overview)
 2. [Getting Started](#getting-started)
